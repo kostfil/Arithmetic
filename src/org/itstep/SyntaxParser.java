@@ -65,26 +65,49 @@ public class SyntaxParser {
                 int t = parseTerminal(tokens);
                 return parseMultiplicationRec(prev/t,tokens);
             }
-
+            case MOD: {
+                tokens.poll();
+                int t = parseTerminal(tokens);
+                return parseMultiplicationRec(prev%t,tokens);
+            }
+            case POW: {
+                tokens.poll();
+                int t = parseTerminal(tokens);
+                return parseMultiplicationRec((int) Math.pow(prev,t),tokens);
+            }
             default:
                 return prev;
         }
     }
 
-    private static int parseTerminal(Deque<Token> tokens) throws UnexpectedTokenException {
+    private static int parseTerminal(Deque<Token> tokens) throws UnexpectedTokenException{
         //T is N or (A), where N is number and A is a nested expression
         Token tok = tokens.poll();
+
         switch (tok.tokType) {
             case NUMBER:
                 return Integer.parseInt(tok.data.toString());
 
-            case OPEN:
+            case OPEN: {
                 int res = parseAddition(tokens);
                 Token nextToken = tokens.poll();
-                if( TokenType.CLOSE != nextToken.tokType)
+                if (TokenType.CLOSE != nextToken.tokType)
                     throw new UnexpectedTokenException(nextToken);
                 return res;
-
+            }
+            case FUN: {
+                int argument = 0;
+                if (tok.data.toString().equals("POW")) {
+                    Token nextToken = tokens.poll();
+                    if (TokenType.OPEN == nextToken.tokType) {
+                        argument = Integer.parseInt( tokens.poll().data.toString() );
+                        nextToken = tokens.poll();
+                        if (TokenType.CLOSE != nextToken.tokType)
+                            throw new UnexpectedTokenException(nextToken);
+                    }
+                }
+                return argument * argument;
+            }
             default:
                 throw new UnexpectedTokenException(tok);
         }
@@ -92,3 +115,4 @@ public class SyntaxParser {
 
     private SyntaxParser() { }
 }
+

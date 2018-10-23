@@ -26,6 +26,15 @@ public final class LexicalParser {
         return null;
     }
 
+    private static Token functionChecker(CharSequence expression) {
+        if (Character.isAlphabetic(expression.charAt(0))) {
+            int pos = 0; int len = expression.length();
+            while (++pos < len && Character.isAlphabetic(expression.charAt(pos)));
+            return new Token(TokenType.FUN,expression.subSequence(0,pos));
+        }
+        return null;
+    }
+
     private static Token symbolChecker(CharSequence expression) {
         switch(expression.charAt(0)) {
             case '+':
@@ -36,14 +45,15 @@ public final class LexicalParser {
                 return new Token(TokenType.MUL,expression.subSequence(0,1));
             case '/':
                 return new Token(TokenType.DIV,expression.subSequence(0,1));
-
             case '(':
                 return new Token(TokenType.OPEN,expression.subSequence(0,1));
             case ')':
                 return new Token(TokenType.CLOSE,expression.subSequence(0,1));
-
+            case '%':
+                return new Token(TokenType.MOD,expression.subSequence(0,1));
+            case '^':
+                return new Token(TokenType.POW,expression.subSequence(0,1));
             default:
-                // no case // comments
                 return null;
         }
     }
@@ -52,8 +62,10 @@ public final class LexicalParser {
         Token tok = null;
         if (null != (tok = numberChecker(expression))) return tok;
         if (null != (tok = symbolChecker(expression))) return tok;
+        if (null != (tok = functionChecker(expression))) return tok;
         throw new UnknownLexicalSequenceException(expression);
     }
 
     private LexicalParser() { }
 }
+
