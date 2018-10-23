@@ -43,6 +43,7 @@ public final class LexicalParser {
                 return new Token(TokenType.CLOSE,expression.subSequence(0,1));
 
             default:
+                // no case
                 return null;
         }
     }
